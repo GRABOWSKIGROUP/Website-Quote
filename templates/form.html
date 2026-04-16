@@ -296,6 +296,13 @@
         justify-content: flex-end;
       }
 
+      .bot-box {
+        border: 1px dashed var(--line);
+        border-radius: 12px;
+        padding: 0.85rem;
+        background: #faf8f8;
+      }
+
       button {
         appearance: none;
         border: none;
@@ -511,6 +518,16 @@
               </div>
             </section>
 
+            {% if bot_protection_enabled %}
+              <section class="section">
+                <h2>Verification</h2>
+                <p class="field-help">Complete the quick verification below to prevent bot submissions.</p>
+                <div class="bot-box">
+                  <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+                </div>
+              </section>
+            {% endif %}
+
             <div class="actions">
               <button type="submit">Generate Professional Quote</button>
             </div>
@@ -518,6 +535,10 @@
         </div>
       </section>
     </main>
+
+    {% if bot_protection_enabled %}
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    {% endif %}
 
     <script>
       const output = document.getElementById("output");

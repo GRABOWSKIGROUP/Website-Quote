@@ -1,10 +1,13 @@
 import os
 import smtplib
+import urllib.parse
+import urllib.request
+import json
 from email.message import EmailMessage
 from email.utils import formataddr
 from io import BytesIO
 
-from flask import Flask, render_template, request, send_file
+from flask import Flask, flash, render_template, request, send_file
 from dotenv import load_dotenv
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
@@ -38,6 +41,49 @@ SMTP_CONFIG = {
 }
 
 SEND_EMAIL = os.getenv("SEND_EMAIL", "false").lower() == "true"
+TURNSTILE_SITE_KEY = os.getenv("TURNSTILE_SITE_KEY", "")
+TURNSTILE_SECRET_KEY = os.getenv("TURNSTILE_SECRET_KEY", "")
+BOT_PROTECTION_ENABLED = bool(TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY)
+
+
+@app.context_processor
+def inject_template_config():
+    return {
+        "bot_protection_enabled": BOT_PROTECTION_ENABLED,
+        "turnstile_site_key": TURNSTILE_SITE_KEY,
+    }
+
+
+def verify_turnstile(token, remote_ip=None):
+    if not BOT_PROTECTION_ENABLED:
+        return True, "disabled"
+
+    if not token:
+        return False, "missing-token"
+
+    payload = {
+        "secret": TURNSTILE_SECRET_KEY,
+        "response": token,
+    }
+    if remote_ip:
+        payload["remoteip"] = remote_ip
+
+    data = urllib.parse.urlencode(payload).encode("utf-8")
+    req = urllib.request.Request(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        data=data,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            body = resp.read()
+            parsed = json.loads(body.decode("utf-8"))
+            success = bool(parsed.get("success"))
+            errors = parsed.get("error-codes", [])
+            return success, ",".join(errors) if errors else "ok"
+    except Exception as exc:
+        return False, str(exc)
 
 
 def calculate_quote(data):
@@ -307,8 +353,19 @@ def index():
     return render_template("form.html")
 
 
-@app.route("/quote", methods=["POST"])
+@app.route("/quote", methods=["GET", "POST"])
 def quote():
+    if request.method == "GET":
+        return render_template("form.html")
+
+    if BOT_PROTECTION_ENABLED:
+        token = request.form.get("cf-turnstile-response", "")
+        remote_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+        ok, _reason = verify_turnstile(token, remote_ip)
+        if not ok:
+            flash("Verification failed. Please confirm you are human and submit again.", "danger")
+            return render_template("form.html"), 400
+
     quote = calculate_quote(request.form)
     output_type = quote["output_type"]
 
