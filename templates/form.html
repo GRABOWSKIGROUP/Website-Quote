@@ -410,7 +410,7 @@
             <h1>Website Project Quote</h1>
             <img class="title-logo" src="{{ url_for('static', filename='lOGO.png') }}" alt="JG Tech Solutions logo" />
           </div>
-          <p>Get your custom website quote with clear, transparent pricing.</p>
+          <p>Get a custom website quote based on your selected features and scope.</p>
         </header>
 
         <div class="content">
@@ -427,7 +427,7 @@
           <section class="intro-grid">
             <article class="info-panel">
               <h2>How to use this quote tool</h2>
-              <p>Choose the package that best matches the size of the website, then add any special features you need. If you are unsure, pick the closest fit—the quote is designed to give an easy starting estimate, not overwhelm you with technical jargon.</p>
+              <p>Choose the package that best matches the size of the website, then add any special features you need. If you are unsure, select the closest fit. The quote reflects the options you select.</p>
               <ul class="helper-list">
                 <li><strong>Tier</strong> = overall size and complexity of the site.</li>
                 <li><strong>Forms</strong> = contact, adoption, intake, volunteer, or application forms.</li>
@@ -454,16 +454,19 @@
                 <h3>Flat static</h3>
                 <span class="tier-price">Starts at $750</span>
                 <p>Best for a simple online presence. Think home page, about page, services, gallery, and contact info with very little ongoing editing.</p>
+                <p class="note">Pricing reflects the selected scope for this tier.</p>
               </article>
               <article class="tier-card">
                 <h3>Mid tier</h3>
                 <span class="tier-price">Starts at $1,200</span>
                 <p>Best for a growing business or organization that needs more pages, stronger layout planning, and a few interactive pieces like forms or integrations.</p>
+                <p class="note">Pricing reflects the selected scope for this tier.</p>
               </article>
               <article class="tier-card">
                 <h3>Detailed / full featured</h3>
                 <span class="tier-price">Starts at $2,500</span>
                 <p>Best for custom workflows and management features. Use this when you need online donations, user-editable content, dashboards, listings, or more advanced functionality.</p>
+                <p class="note">Pricing reflects the selected scope for this tier.</p>
               </article>
             </div>
           </section>
@@ -573,7 +576,7 @@
             {% endif %}
 
             <div class="actions">
-              <button type="submit">Generate Professional Quote</button>
+              <button type="submit">Create Quote</button>
             </div>
           </form>
         </div>
