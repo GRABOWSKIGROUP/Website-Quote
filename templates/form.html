@@ -327,6 +327,57 @@
         justify-content: flex-end;
       }
 
+      .help-menu {
+        margin-bottom: 1.25rem;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #faf8f8;
+        overflow: hidden;
+      }
+
+      .help-menu summary {
+        padding: 0.75rem 1rem;
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--brand);
+        cursor: pointer;
+        list-style: none;
+        user-select: none;
+      }
+
+      .help-menu summary::-webkit-details-marker { display: none; }
+
+      .help-menu[open] summary {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .help-body {
+        padding: 0.85rem 1rem 1rem;
+      }
+
+      .help-body p {
+        margin: 0 0 0.6rem;
+        font-size: 0.91rem;
+        color: #383838;
+        line-height: 1.55;
+      }
+
+      .tier-summary-box {
+        display: none;
+        margin: 0.4rem 0 0;
+        padding: 0.55rem 0.75rem;
+        border-left: 3px solid var(--brand);
+        background: #fdf6f6;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.88rem;
+        color: #3a1a1d;
+        line-height: 1.5;
+      }
+
+      .tier-summary-box.visible {
+        display: block;
+      }
+
       .bot-box {
         border: 1px dashed var(--line);
         border-radius: 12px;
@@ -424,28 +475,21 @@
             {% endif %}
           {% endwith %}
 
-          <section class="intro-grid">
-            <article class="info-panel">
-              <h2>How to use this quote tool</h2>
-              <p>Choose the package that best matches the size of the website, then add any special features you need. If you are unsure, select the closest fit. The quote reflects the options you select.</p>
+          <details class="help-menu">
+            <summary>How to use this quote tool ▾</summary>
+            <div class="help-body">
+              <p>Choose the package that best matches how the site will actually be used. Add features that will be part of the initial build. The quote reflects exactly what you select.</p>
               <ul class="helper-list">
-                <li><strong>Tier</strong> = overall size and complexity of the site.</li>
-                <li><strong>Forms</strong> = contact, adoption, intake, volunteer, or application forms.</li>
-                <li><strong>E-commerce</strong> = online payments, checkout, donations, or product sales.</li>
-                <li><strong>Backend/Admin</strong> = a login area where your team can add, edit, or remove content.</li>
-                <li><strong>Integrations</strong> = connections to outside tools like CRMs, email platforms, calendars, or payment systems.</li>
+                <li><strong>Tier</strong> — overall size and complexity of the site.</li>
+                <li><strong>Forms</strong> — contact, adoption, intake, volunteer, or application forms.</li>
+                <li><strong>E-commerce</strong> — online payments, checkout, donations, or product sales.</li>
+                <li><strong>Backend/Admin</strong> — a login area where your team can add, edit, or remove content.</li>
+                <li><strong>Integrations</strong> — connections to outside tools like CRMs, email platforms, calendars, or payment systems.</li>
+                <li><strong>Rush</strong> — accelerated turnaround within 48 hours (+15%).</li>
+                <li><strong>Discount</strong> — military or first responder rate (−20%).</li>
               </ul>
-            </article>
-
-            <article class="info-panel">
-              <h3>Quick recommendation guide</h3>
-              <ul class="helper-list">
-                <li>Pick <strong>Flat static</strong> for a simple brochure-style site with basic pages.</li>
-                <li>Pick <strong>Mid tier</strong> for a business site with more structure and a few interactive features.</li>
-                <li>Pick <strong>Detailed / full featured</strong> when the site needs logins, dashboards, advanced content management, payments, or custom workflows.</li>
-              </ul>
-            </article>
-          </section>
+            </div>
+          </details>
 
           <section class="section">
             <h2>Tier Differences</h2>
@@ -453,20 +497,17 @@
               <article class="tier-card">
                 <h3>Flat static</h3>
                 <span class="tier-price">Starts at $750</span>
-                <p>Best for a simple online presence. Think home page, about page, services, gallery, and contact info with very little ongoing editing.</p>
-                <p class="note">Pricing reflects the selected scope for this tier.</p>
+                <p>Simple online presence — home, about, services, gallery, contact. No logins, no dynamic content, minimal updates after launch.</p>
               </article>
               <article class="tier-card">
                 <h3>Mid tier</h3>
                 <span class="tier-price">Starts at $1,200</span>
-                <p>Best for a growing business or organization that needs more pages, stronger layout planning, and a few interactive pieces like forms or integrations.</p>
-                <p class="note">Pricing reflects the selected scope for this tier.</p>
+                <p>Growing business or org — more pages, stronger layout, a few interactive pieces. Some interactivity, limited automation.</p>
               </article>
               <article class="tier-card">
                 <h3>Detailed / full featured</h3>
                 <span class="tier-price">Starts at $2,500</span>
-                <p>Best for custom workflows and management features. Use this when you need online donations, user-editable content, dashboards, listings, or more advanced functionality.</p>
-                <p class="note">Pricing reflects the selected scope for this tier.</p>
+                <p>Custom workflows, user interaction, or system logic. Use when the site needs logins, dashboards, editable content, or automated processes.</p>
               </article>
             </div>
           </section>
@@ -493,12 +534,13 @@
               <div class="grid">
                 <div class="field">
                   <label for="tier">Package tier</label>
-                  <select id="tier" name="tier" required>
+                  <select id="tier" name="tier" required onchange="updateTierSummary(this.value)">
                     <option value="flat">Flat static — $750</option>
                     <option value="mid">Mid tier — $1,200</option>
                     <option value="detailed">Detailed / full featured — $2,500</option>
                   </select>
-                  <p class="field-help">Choose based on how advanced the website needs to be, not just how many pages it has.</p>
+                  <p id="tier-summary" class="tier-summary-box"></p>
+                  <p class="field-help">Select the closest match for how the site will actually be used.</p>
                 </div>
                 <div class="field">
                   <label for="forms">Number of forms</label>
@@ -588,6 +630,20 @@
     {% endif %}
 
     <script>
+      const tierSummaries = {
+        flat: "No logins, no dynamic content, minimal post-launch updates. A straightforward public-facing site.",
+        mid: "Some interactivity and structure. Good for forms, integrations, or a more organized multi-page site.",
+        detailed: "Dynamic content, user logins, or system logic required. Use for dashboards, editable listings, or automated workflows."
+      };
+
+      function updateTierSummary(val) {
+        const box = document.getElementById("tier-summary");
+        box.textContent = tierSummaries[val] || "";
+        box.classList.toggle("visible", !!tierSummaries[val]);
+      }
+
+      updateTierSummary(document.getElementById("tier").value);
+
       const output = document.getElementById("output");
       const emailWrap = document.getElementById("email_wrap");
       const emailInput = document.getElementById("email");
