@@ -49,6 +49,7 @@
         border-radius: 18px;
         box-shadow: 0 14px 36px rgba(16, 16, 16, 0.1);
         overflow: hidden;
+        position: relative;
       }
 
       .header {
@@ -125,6 +126,8 @@
 
       .content {
         padding: 1.75rem 2rem 2rem;
+        position: relative;
+        z-index: 1;
       }
 
       .intro-grid {
@@ -356,7 +359,7 @@
       }
 
       @media (max-width: 800px) {
-        body::after {
+        .card::before {
           content: "";
           position: fixed;
           inset: 0;
