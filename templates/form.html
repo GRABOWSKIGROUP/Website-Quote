@@ -88,11 +88,13 @@
         margin: 0;
         font-size: 1.8rem;
         font-weight: 700;
+        max-width: 66%;
       }
 
       .header p {
         margin: 0.65rem 0 0;
         color: rgba(255, 255, 255, 0.9);
+        max-width: 66%;
       }
 
       .content {
@@ -345,9 +347,12 @@
         }
 
         .header::after {
-          background-size: auto 74%;
-          background-position: right -26px center;
-          opacity: 0.66;
+          display: none;
+        }
+
+        .header h1,
+        .header p {
+          max-width: 100%;
         }
 
         .actions {

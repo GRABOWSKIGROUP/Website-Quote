@@ -81,11 +81,13 @@
       .header h1 {
         margin: 0;
         font-size: 1.7rem;
+        max-width: 66%;
       }
 
       .header p {
         margin: 0.65rem 0 0;
         opacity: 0.94;
+        max-width: 66%;
       }
 
       .content {
@@ -217,9 +219,12 @@
         }
 
         .header::after {
-          background-size: auto 74%;
-          background-position: right -26px center;
-          opacity: 0.66;
+          display: none;
+        }
+
+        .header h1,
+        .header p {
+          max-width: 100%;
         }
 
         .meta {
