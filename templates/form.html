@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Website Quote Generator</title>
+    <style>
+      :root {
+        --bg: #f5f5f5;
+        --surface: #ffffff;
+        --line: #d8d4d4;
+        --text: #101010;
+        --muted: #626161;
+        --brand: #6a282a;
+        --brand-dark: #4f1d20;
+        --brand-soft: #85384d;
+        --brand-graphic: url('{{ url_for("static", filename="lOGO.png") }}');
+        --success-bg: #ecfdf3;
+        --success-fg: #166534;
+        --warning-bg: #fff8e8;
+        --warning-fg: #92400e;
+        --danger-bg: #fef2f2;
+        --danger-fg: #991b1b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+        background: radial-gradient(circle at 10% 10%, #ffffff 0%, #f5f5f5 50%, #eceaea 100%);
+        color: var(--text);
+      }
+
+      .wrapper {
+        max-width: 980px;
+        margin: 2.5rem auto;
+        padding: 0 1rem;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 14px 36px rgba(16, 16, 16, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        position: relative;
+        overflow: hidden;
+        padding: 1.75rem 2rem;
+        background: linear-gradient(155deg, #101010 0%, #3a1a1d 44%, #85384d 100%);
+        color: #fff;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(112deg, rgba(16, 16, 16, 0.54) 0%, rgba(16, 16, 16, 0.2) 42%, rgba(133, 56, 77, 0.05) 100%);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 1;
+      }
+
+      .header::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: var(--brand-graphic);
+        background-size: auto 90%;
+        background-position: right -6px center;
+        background-repeat: no-repeat;
+        opacity: 0.74;
+      }
+
+      .header > * {
+        position: relative;
+        z-index: 2;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+      }
+
+      .header p {
+        margin: 0.65rem 0 0;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .content {
+        padding: 1.75rem 2rem 2rem;
+      }
+
+      .intro-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 1rem;
+        margin-bottom: 1.4rem;
+      }
+
+      .info-panel {
+        background: #faf8f8;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 1rem 1.05rem;
+      }
+
+      .info-panel h2,
+      .info-panel h3 {
+        margin: 0 0 0.55rem;
+        color: #2a1718;
+      }
+
+      .info-panel p {
+        margin: 0;
+        line-height: 1.55;
+        color: #383838;
+        font-size: 0.93rem;
+      }
+
+      .helper-list {
+        margin: 0.7rem 0 0;
+        padding-left: 1.1rem;
+        color: #3b3b3b;
+      }
+
+      .helper-list li {
+        margin-bottom: 0.45rem;
+        line-height: 1.45;
+        font-size: 0.92rem;
+      }
+
+      .tier-cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.9rem;
+        margin: 0.85rem 0 1.1rem;
+      }
+
+      .tier-card {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 0.95rem;
+        background: linear-gradient(180deg, #ffffff 0%, #fcfbfb 100%);
+      }
+
+      .tier-card h3 {
+        margin: 0 0 0.22rem;
+        font-size: 1rem;
+        color: #2a1718;
+      }
+
+      .tier-price {
+        display: inline-block;
+        margin-bottom: 0.6rem;
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: var(--brand);
+      }
+
+      .tier-card p {
+        margin: 0;
+        color: #444;
+        line-height: 1.5;
+        font-size: 0.91rem;
+      }
+
+      .section {
+        margin-bottom: 1.25rem;
+      }
+
+      .section h2 {
+        margin: 0 0 0.75rem;
+        font-size: 1.05rem;
+        color: #2a1718;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.42rem;
+      }
+
+      .field.full {
+        grid-column: 1 / -1;
+      }
+
+      .field-help {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.86rem;
+        line-height: 1.45;
+      }
+
+      label {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: #2a2a2a;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      input[type="email"],
+      select {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 0.72rem 0.78rem;
+        font-size: 0.96rem;
+        background: #fff;
+        color: var(--text);
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--brand);
+        box-shadow: 0 0 0 4px rgba(106, 40, 42, 0.16);
+      }
+
+      .checks {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem 1rem;
+      }
+
+      .check {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.94rem;
+        color: #2f2f2f;
+      }
+
+      .check input {
+        width: 1rem;
+        height: 1rem;
+      }
+
+      .note {
+        margin-top: 0.35rem;
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      .flash-list {
+        list-style: none;
+        margin: 0 0 1rem;
+        padding: 0;
+      }
+
+      .flash {
+        border-radius: 10px;
+        border: 1px solid transparent;
+        padding: 0.72rem 0.88rem;
+        margin-bottom: 0.62rem;
+        font-size: 0.92rem;
+      }
+
+      .flash.success {
+        background: var(--success-bg);
+        color: var(--success-fg);
+        border-color: #bbf7d0;
+      }
+
+      .flash.warning {
+        background: var(--warning-bg);
+        color: var(--warning-fg);
+        border-color: #fde68a;
+      }
+
+      .flash.danger {
+        background: var(--danger-bg);
+        color: var(--danger-fg);
+        border-color: #fecaca;
+      }
+
+      .actions {
+        margin-top: 1.35rem;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      button {
+        appearance: none;
+        border: none;
+        border-radius: 10px;
+        padding: 0.85rem 1.2rem;
+        min-width: 180px;
+        font-weight: 600;
+        font-size: 0.97rem;
+        color: #fff;
+        cursor: pointer;
+        background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+        box-shadow: 0 8px 22px rgba(106, 40, 42, 0.34);
+        transition: transform 0.12s ease, filter 0.2s ease;
+      }
+
+      button:hover {
+        filter: brightness(1.04);
+        transform: translateY(-1px);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      @media (max-width: 800px) {
+        .intro-grid,
+        .tier-cards,
+        .grid,
+        .checks {
+          grid-template-columns: 1fr;
+        }
+
+        .header,
+        .content {
+          padding: 1.35rem;
+        }
+
+        .header::before {
+          opacity: 1;
+        }
+
+        .header::after {
+          background-size: auto 74%;
+          background-position: right -26px center;
+          opacity: 0.66;
+        }
+
+        .actions {
+          justify-content: stretch;
+        }
+
+        button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrapper">
+      <section class="card">
+        <header class="header">
+          <h1>Website Project Quote</h1>
+          <p>Configure project scope, features, and delivery speed to generate a professional estimate.</p>
+        </header>
+
+        <div class="content">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <ul class="flash-list">
+                {% for category, message in messages %}
+                  <li class="flash {{ category }}">{{ message }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endwith %}
+
+          <section class="intro-grid">
+            <article class="info-panel">
+              <h2>How to use this quote tool</h2>
+              <p>Choose the package that best matches the size of the website, then add any special features you need. If you are unsure, pick the closest fit—the quote is designed to give an easy starting estimate, not overwhelm you with technical jargon.</p>
+              <ul class="helper-list">
+                <li><strong>Tier</strong> = overall size and complexity of the site.</li>
+                <li><strong>Forms</strong> = contact, adoption, intake, volunteer, or application forms.</li>
+                <li><strong>E-commerce</strong> = online payments, checkout, donations, or product sales.</li>
+                <li><strong>Backend/Admin</strong> = a login area where your team can add, edit, or remove content.</li>
+                <li><strong>Integrations</strong> = connections to outside tools like CRMs, email platforms, calendars, or payment systems.</li>
+              </ul>
+            </article>
+
+            <article class="info-panel">
+              <h3>Quick recommendation guide</h3>
+              <ul class="helper-list">
+                <li>Pick <strong>Flat static</strong> for a simple brochure-style site with basic pages.</li>
+                <li>Pick <strong>Mid tier</strong> for a business site with more structure and a few interactive features.</li>
+                <li>Pick <strong>Detailed / full featured</strong> when the site needs logins, dashboards, advanced content management, payments, or custom workflows.</li>
+              </ul>
+            </article>
+          </section>
+
+          <section class="section">
+            <h2>Tier Differences</h2>
+            <div class="tier-cards">
+              <article class="tier-card">
+                <h3>Flat static</h3>
+                <span class="tier-price">Starts at $750</span>
+                <p>Best for a simple online presence. Think home page, about page, services, gallery, and contact info with very little ongoing editing.</p>
+              </article>
+              <article class="tier-card">
+                <h3>Mid tier</h3>
+                <span class="tier-price">Starts at $1,200</span>
+                <p>Best for a growing business or organization that needs more pages, stronger layout planning, and a few interactive pieces like forms or integrations.</p>
+              </article>
+              <article class="tier-card">
+                <h3>Detailed / full featured</h3>
+                <span class="tier-price">Starts at $2,500</span>
+                <p>Best for custom workflows and management features. Use this when you need online donations, user-editable content, dashboards, listings, or more advanced functionality.</p>
+              </article>
+            </div>
+          </section>
+
+          <form method="post" action="/quote">
+            <section class="section">
+              <h2>Client Details</h2>
+              <div class="grid">
+                <div class="field">
+                  <label for="client_name">Client name</label>
+                  <input id="client_name" type="text" name="client_name" placeholder="Acme Corporation" required />
+                  <p class="field-help">This can be your business, nonprofit, or client name.</p>
+                </div>
+                <div class="field">
+                  <label for="project_name">Project name</label>
+                  <input id="project_name" type="text" name="project_name" placeholder="Marketing Website Redesign" required />
+                  <p class="field-help">Use a short description like “Donation Website” or “Adoptable Pets Portal”.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="section">
+              <h2>Scope & Features</h2>
+              <div class="grid">
+                <div class="field">
+                  <label for="tier">Package tier</label>
+                  <select id="tier" name="tier" required>
+                    <option value="flat">Flat static — $750</option>
+                    <option value="mid">Mid tier — $1,200</option>
+                    <option value="detailed">Detailed / full featured — $2,500</option>
+                  </select>
+                  <p class="field-help">Choose based on how advanced the website needs to be, not just how many pages it has.</p>
+                </div>
+                <div class="field">
+                  <label for="forms">Number of forms</label>
+                  <input id="forms" type="number" name="forms" min="0" value="0" />
+                  <p class="field-help">Examples: contact form, adoption application, volunteer form, intake form, or quote request.</p>
+                </div>
+                <div class="field full">
+                  <label for="integrations">Third-party integrations</label>
+                  <input id="integrations" type="number" name="integrations" min="0" value="0" />
+                  <p class="field-help">Count any outside system the website needs to connect with, such as Mailchimp, Stripe, Google Calendar, or a CRM.</p>
+                </div>
+              </div>
+
+              <div class="checks" style="margin-top: 0.9rem;">
+                <label class="check"><input type="checkbox" name="ecommerce" value="yes" /> E-commerce (+$800)</label>
+                <label class="check"><input type="checkbox" name="backend" value="yes" /> Backend/Admin panel (+$500)</label>
+              </div>
+              <div class="grid" style="margin-top: 0.7rem; gap: 0.75rem;">
+                <div class="info-panel">
+                  <h3>E-commerce / Donations</h3>
+                  <p>Choose this if the site needs to accept online payments, donations, product purchases, or any checkout-style flow.</p>
+                </div>
+                <div class="info-panel">
+                  <h3>Backend / Admin panel</h3>
+                  <p>Choose this if you want a login area where your team can manage content like adoptable kittens, listings, announcements, or other updates without rebuilding the site.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="section">
+              <h2>Adjustments & Delivery</h2>
+              <div class="checks">
+                <label class="check"><input type="checkbox" name="military" value="yes" /> Military/First Responder discount (−20%)</label>
+                <label class="check"><input type="checkbox" name="rush" value="yes" /> Rush 48hr delivery (+15%)</label>
+              </div>
+              <div class="grid" style="margin-top: 0.7rem; gap: 0.75rem;">
+                <div class="info-panel">
+                  <h3>Discount</h3>
+                  <p>Apply this when the client qualifies for the military or first responder discount. It reduces the total quote by 20%.</p>
+                </div>
+                <div class="info-panel">
+                  <h3>Rush delivery</h3>
+                  <p>Apply this only when the project needs an accelerated turnaround within 48 hours. It adds 15% to the discounted total.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="section">
+              <h2>Output</h2>
+              <div class="grid">
+                <div class="field">
+                  <label for="output">Output format</label>
+                  <select id="output" name="output" required>
+                    <option value="text">Text summary</option>
+                    <option value="pdf">PDF download</option>
+                    <option value="email">Email quote + PDF</option>
+                  </select>
+                  <p class="field-help">Text is quickest to review, PDF downloads a file immediately, and Email sends the summary plus a PDF attachment to the address entered below.</p>
+                </div>
+                <div class="field" id="email_wrap">
+                  <label for="email">Recipient email</label>
+                  <input id="email" type="email" name="email" placeholder="client@example.com" />
+                  <p class="note">Required when output is set to email. The quote will be sent to this address with a PDF attachment once SMTP is configured.</p>
+                </div>
+              </div>
+            </section>
+
+            <div class="actions">
+              <button type="submit">Generate Professional Quote</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const output = document.getElementById("output");
+      const emailWrap = document.getElementById("email_wrap");
+      const emailInput = document.getElementById("email");
+
+      function syncEmailField() {
+        const needsEmail = output.value === "email";
+        emailWrap.style.opacity = needsEmail ? "1" : "0.65";
+        emailInput.required = needsEmail;
+      }
+
+      output.addEventListener("change", syncEmailField);
+      syncEmailField();
+    </script>
+  </body>
+</html>

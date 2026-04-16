@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Email Status</title>
+    <style>
+      :root {
+        --bg: #f5f5f5;
+        --surface: #ffffff;
+        --line: #d8d4d4;
+        --text: #101010;
+        --muted: #626161;
+        --brand: #6a282a;
+        --brand-dark: #4f1d20;
+        --success: #166534;
+        --success-bg: #ecfdf3;
+        --success-line: #bbf7d0;
+        --error: #991b1b;
+        --error-bg: #fef2f2;
+        --error-line: #fecaca;
+        --brand-graphic: url('{{ url_for("static", filename="lOGO.png") }}');
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+        background: radial-gradient(circle at 10% 10%, #ffffff 0%, #f5f5f5 50%, #eceaea 100%);
+        color: var(--text);
+      }
+
+      .wrapper {
+        max-width: 980px;
+        margin: 2.5rem auto;
+        padding: 0 1rem;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 14px 36px rgba(16, 16, 16, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        position: relative;
+        overflow: hidden;
+        padding: 1.75rem 2rem;
+        background: linear-gradient(155deg, #101010 0%, #3a1a1d 44%, #85384d 100%);
+        color: #fff;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(112deg, rgba(16, 16, 16, 0.54) 0%, rgba(16, 16, 16, 0.2) 42%, rgba(133, 56, 77, 0.05) 100%);
+      }
+
+      .header::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: var(--brand-graphic);
+        background-size: auto 90%;
+        background-position: right -6px center;
+        background-repeat: no-repeat;
+        opacity: 0.74;
+      }
+
+      .header > * {
+        position: relative;
+        z-index: 2;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 1.7rem;
+      }
+
+      .header p {
+        margin: 0.65rem 0 0;
+        opacity: 0.94;
+      }
+
+      .content {
+        padding: 1.6rem 2rem 2rem;
+      }
+
+      .status-banner {
+        border-radius: 14px;
+        padding: 1rem 1.1rem;
+        border: 1px solid;
+        margin-bottom: 1.25rem;
+      }
+
+      .status-banner.success {
+        background: var(--success-bg);
+        border-color: var(--success-line);
+        color: var(--success);
+      }
+
+      .status-banner.error {
+        background: var(--error-bg);
+        border-color: var(--error-line);
+        color: var(--error);
+      }
+
+      .status-banner h2 {
+        margin: 0 0 0.35rem;
+        font-size: 1.15rem;
+      }
+
+      .status-banner p {
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 1rem;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 1rem;
+        background: #fbfbfb;
+      }
+
+      .panel h3 {
+        margin: 0 0 0.75rem;
+        color: #2a1718;
+      }
+
+      .meta {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+      }
+
+      .meta-item {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+        padding: 0.8rem 0.9rem;
+      }
+
+      .meta-label {
+        display: block;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin-bottom: 0.2rem;
+      }
+
+      .meta-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      ul.summary {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      ul.summary li {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.72rem 0;
+        border-bottom: 1px solid #eeeaea;
+      }
+
+      ul.summary li:last-child {
+        border-bottom: none;
+      }
+
+      .money {
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .total {
+        font-weight: 700;
+        color: var(--brand);
+      }
+
+      .detail-box {
+        margin-top: 0.9rem;
+        padding: 0.85rem 0.95rem;
+        border-radius: 12px;
+        background: #fff;
+        border: 1px solid var(--line);
+        color: #3a3a3a;
+        line-height: 1.5;
+      }
+
+      .actions {
+        margin-top: 1.35rem;
+        display: flex;
+        gap: 0.8rem;
+        justify-content: flex-end;
+      }
+
+      .btn {
+        appearance: none;
+        border-radius: 10px;
+        padding: 0.72rem 1.05rem;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.93rem;
+        transition: transform 0.12s ease, filter 0.2s ease;
+      }
+
+      .btn-primary {
+        border: none;
+        color: #fff;
+        background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+        box-shadow: 0 8px 22px rgba(106, 40, 42, 0.34);
+      }
+
+      .btn-secondary {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: #334155;
+      }
+
+      .btn:hover {
+        filter: brightness(1.03);
+        transform: translateY(-1px);
+      }
+
+      @media (max-width: 800px) {
+        .header,
+        .content {
+          padding: 1.35rem;
+        }
+
+        .header::after {
+          background-size: auto 74%;
+          background-position: right -26px center;
+          opacity: 0.66;
+        }
+
+        .layout,
+        .meta {
+          grid-template-columns: 1fr;
+        }
+
+        .actions {
+          flex-direction: column;
+        }
+
+        .btn {
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrapper">
+      <section class="card">
+        <header class="header">
+          <h1>Email Quote Status</h1>
+          <p>Review the delivery result and the quote details below.</p>
+        </header>
+
+        <div class="content">
+          <section class="status-banner {{ status }}">
+            <h2>{{ title }}</h2>
+            <p>{{ message }}</p>
+          </section>
+
+          <section class="layout">
+            <article class="panel">
+              <h3>Quote Summary</h3>
+              <div class="meta">
+                <div class="meta-item">
+                  <span class="meta-label">Client</span>
+                  <span class="meta-value">{{ quote.client_name }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Project</span>
+                  <span class="meta-value">{{ quote.project_name }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Tier</span>
+                  <span class="meta-value">{{ quote.tier.capitalize() }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Recipient</span>
+                  <span class="meta-value">{{ quote.email or 'Not provided' }}</span>
+                </div>
+              </div>
+
+              <div class="detail-box">
+                {{ details }}
+              </div>
+            </article>
+
+            <article class="panel">
+              <h3>Pricing</h3>
+              <ul class="summary">
+                {% for item in quote["items"] %}
+                  <li>
+                    <span>{{ item.label }}{% if item.quantity is defined %} ×{{ item.quantity }}{% endif %}</span>
+                    <span class="money">${{ "%.2f" | format(item.amount) }}</span>
+                  </li>
+                {% endfor %}
+                {% if quote.discount_applied %}
+                  <li>
+                    <span>Military / First Responder Discount</span>
+                    <span class="money">-${{ "%.2f" | format(quote.discount) }}</span>
+                  </li>
+                {% endif %}
+                {% if quote.rush_applied %}
+                  <li>
+                    <span>Rush 48hr surcharge</span>
+                    <span class="money">${{ "%.2f" | format(quote.rush) }}</span>
+                  </li>
+                {% endif %}
+                <li class="total">
+                  <span>Total</span>
+                  <span class="money">${{ "%.2f" | format(quote.total) }}</span>
+                </li>
+              </ul>
+            </article>
+          </section>
+
+          <div class="actions">
+            <a class="btn btn-secondary" href="/">Back to form</a>
+            <a class="btn btn-primary" href="/">Create another quote</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: quote-generator
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_DEBUG
+        value: false
+      - key: SEND_EMAIL
+        value: false
+      - key: PYTHON_VERSION
+        value: 3.13.3
